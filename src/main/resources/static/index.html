@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Ping Me</title>
+</head>
+<body>
+<noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Enable Javascript and reload this page!</h2></noscript>
+<h1>Ping Me</h1>
+<h1>Ping Me</h1>
+<h1>Ping Me</h1> <!-- first visible line on iWatch (without Zoom In) -->
+<button id="pingMe" type="submit">Ping Me - Ping Me - Ping Me</button>
+<p id="result"></p>
+<h1>Message 1</h1>
+<button id="msg1" type="submit">Predefined Message 1</button>
+<p id="result1"></p>
+<h1>Message 2</h1>
+<button id="msg2" type="submit">Predefined Message 2</button>
+<p id="result2"></p>
+<h1>Your text</h1>
+<input type="text" id="gim" value=""/>
+<button id="buttonG">Send</button>
+<p id="resultGim"></p>
+<script>
+
+    <!-- navigator.geolocation is not available on iWatch -->
+    function ping(text, field) {
+        try {
+            var xhr = new XMLHttpRequest();
+            var url = "https://abcd-12-345-678-90.ngrok-free.app";
+            // var url = "http://localhost:8080";
+            url += "/ping/" + text; // :8080/ping
+            xhr.open('GET', url, true);
+            xhr.timeout = 2000;
+            xhr.onload = () => {
+                // console.debug(xhr.status + "-" + xhr.responseText);
+                // alert(xhr.responseText == "0" ? "success" : "failure");
+                document.getElementById(field).innerHTML = "<h1>" + (xhr.responseText == "0" ? "success" : "failure") + "</h1>";
+                if (xhr.status != 200) {
+                    document.getElementById(field).innerHTML = "<h1>failure</h1>";
+                }
+            };
+            xhr.ontimeout = (e) => {
+                // alert("Timeout");
+                document.getElementById(field).innerHTML = "<h1>Timeout</h1>";
+            };
+            document.getElementById(field).innerHTML = "<h1>before xhr</h1>";
+            xhr.send(null);
+            document.getElementById(field).innerHTML = "<h1>after xhr</h1>";
+        }
+        catch (err) {
+            // console.error(err);
+            // alert(err);
+            document.getElementById(field).innerHTML = "<h1>Error</h1>";
+        }
+    }
+
+    document.getElementById("pingMe").addEventListener('click', function(e) {
+        ping('0', 'result');
+    });
+
+    document.getElementById("msg1").addEventListener('click', function(e) {
+        ping('1', 'result1');
+    });
+
+    document.getElementById("msg2").addEventListener('click', function(e) {
+        ping('2', 'result2');
+    });
+
+    document.getElementById("buttonG").addEventListener('click', function(e) {
+        ping(document.getElementById('gim').value, 'resultGim');
+    });
+
+</script>
+</body>
+</html>
