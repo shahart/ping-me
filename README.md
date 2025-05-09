@@ -42,3 +42,5 @@ Now your buddy can text you using WhatsApp - in which answering is possible.
 - Cloud
 - WebSocket
 - Open Chat like https://matrix.org/
+
+[![Java CI with Gradle](https://github.com/shahart/ping-me/actions/workflows/maven.yml/badge.svg)](https://github.com/shahart/ping-me/actions/workflows/maven.yml)
