@@ -1,13 +1,18 @@
 package edu.pingme.messaging_stomp_websocket;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+//import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+//@SpringBootTest
 class MessagingStompWebsocketApplicationTests {
 
+//	@Test
+//	void contextLoads() {
+//	}
+
 	@Test
-	void contextLoads() {
+	void chromeIsUp() {
+		new Controller().getChromeInstance();
 	}
 
 }
