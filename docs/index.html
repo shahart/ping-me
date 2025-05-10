@@ -36,7 +36,7 @@
     function ping(text, field) {
         try {
             var xhr = new XMLHttpRequest();
-            var url = "https://abcd-12-345-678-90.ngrok-free.app";
+            var url = "https://" + window.location.hostname;
             // var url = "http://localhost:8080";
             url += "/ping/" + text; // :8080/ping
             xhr.open('GET', url, true);

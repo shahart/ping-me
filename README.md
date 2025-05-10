@@ -16,7 +16,7 @@ Now your buddy can text you using WhatsApp - in which answering is possible.
 
 - `ngrok http 8080`
 
-- copy the address into index.html
+- Browse to this url - like https://abcd-12-345-678-90.ngrok-free.app/ - in the iWatch
 
 - Run
 
@@ -29,7 +29,7 @@ Now your buddy can text you using WhatsApp - in which answering is possible.
 
 - mvn spring-boot:run -Dspring-boot.run.arguments=--recipient.target=Elvis
 
-- Browse to http://localhost:8080/index.html just to make utility is up and running
+- Browse to http://localhost:8080/index.html just to make sure utility is up and running
 
 - On Windows > Control-Panel > System > Power & Batter make sure your device won't sleep/ hiberante after X hours
 
@@ -42,5 +42,7 @@ Now your buddy can text you using WhatsApp - in which answering is possible.
 - Cloud
 - WebSocket
 - Open Chat like https://matrix.org/
+
+![](docs/ping-me.png)
 
 [![Java CI with Gradle](https://github.com/shahart/ping-me/actions/workflows/maven.yml/badge.svg)](https://github.com/shahart/ping-me/actions/workflows/maven.yml)
