@@ -6,6 +6,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+//import org.openqa.selenium.firefox.FirefoxDriver;
+//import org.openqa.selenium.firefox.FirefoxOptions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,12 +44,14 @@ public class Controller {
     long lastUsage = 0;
 
     ChromeDriver driver;
+//  FirefoxDriver firefoxDriver;
 
     @PostConstruct
     public void logConfig() {
         log.info("recipients: from '" + recipientSource + "' to '" + recipientTarget);
         driver = getChromeInstance(); // timeout is 60 sec
-        log.info("Chrome is up.");
+        // firefoxDriver = getFirefoxInstance();
+        log.info("Browser is up.");
     }
 
     @GetMapping("ping/{text}")
@@ -57,6 +61,12 @@ public class Controller {
             case "0" -> text = message0;
             case "1" -> text = message1;
             case "2" -> text = message2;
+        }
+
+        // quick and dirty fix, text should be on body param
+        if (text.startsWith("https:--")) {
+            text = text.replaceAll("-", "/");
+            text = text.replaceAll("!", "?");
         }
 
         String device = getDevice(request.getHeader("User-Agent"));
@@ -70,6 +80,7 @@ public class Controller {
             lastUsage = System.currentTimeMillis();
         }
 
+        // sendViaFirefox(prefix + text); // TODO?
         sendViaSelenium(prefix + text);
         // sendViaAHK(prefix + text);
         log.info("Done sending.");
@@ -135,4 +146,12 @@ public class Controller {
         }
         return "Some device";
     }
+
+//    public FirefoxDriver getFirefoxInstance() {
+//        return null; // driver;
+//    }
+
+//    private void sendViaFirefox(String text) {
+//    }
+
 }
