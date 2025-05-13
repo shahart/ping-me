@@ -41,6 +41,9 @@ public class Controller {
     @Value("${recipient.target}")
     String recipientTarget;
 
+    @Value("${recipientElementId}")
+    String recipientElementId;
+
     long lastUsage = 0;
 
     ChromeDriver driver;
@@ -48,14 +51,22 @@ public class Controller {
 
     @PostConstruct
     public void logConfig() {
-        log.info("recipients: from '" + recipientSource + "' to '" + recipientTarget);
+        log.info("recipients: from '" + recipientSource + "' to default '" + recipientTarget);
         driver = getChromeInstance(); // timeout is 60 sec
         // firefoxDriver = getFirefoxInstance();
         log.info("Browser is up.");
     }
 
-    @GetMapping("ping/{text}")
-    public ResponseEntity<Void> pingMe(@PathVariable("text") String text, HttpServletRequest request) {
+    @GetMapping("ping/{recipient}/{text}")
+    public ResponseEntity<Void> pingMe(
+            @PathVariable("recipient") String recipient,
+            @PathVariable("text") String text,
+            HttpServletRequest request) {
+
+        // another quick and dirty - assuming there's no contact name = Null
+        if (recipient.equalsIgnoreCase("null")) {
+            recipient = "";
+        }
 
         switch (text) {
             case "0" -> text = message0;
@@ -69,26 +80,26 @@ public class Controller {
             text = text.replaceAll("!", "?");
         }
 
-        String device = getDevice(request.getHeader("User-Agent"));
-        log.info("ping/" + device + "/" + text);
+        String browser = getBrowser(request.getHeader("User-Agent"));
+        log.info("ping using browser '" + browser + "' to '" + recipient + "' with text '" + text);
 
-        String prefix = device + " message (low connectivity): "; // can prefix on new device, but Keep It Simple
+        String prefix = browser + " message (low connectivity): "; // can prefix on new browser, but Keep It Simple
         if (! text.contains("sanityCheck")) {
-            if (System.currentTimeMillis() - lastUsage < 60_000) {
+            if (System.currentTimeMillis() - lastUsage < 60_000 || ! recipient.isEmpty()) {
                 prefix = "";
             }
             lastUsage = System.currentTimeMillis();
         }
 
-        // sendViaFirefox(prefix + text); // TODO?
-        sendViaSelenium(prefix + text);
+        // sendViaFirefox(recipient, prefix + text); // TODO?
+        sendViaSelenium(recipient, prefix + text);
         // sendViaAHK(prefix + text);
         log.info("Done sending.");
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    private void sendViaAHK(String text) throws Exception {
+    private void sendViaAHK(String recipient, String text) throws Exception {
         ProcessBuilder processBuilder = new ProcessBuilder(
                 "C:\\Program Files\\AutoHotkey\\AutoHotkey.exe",
                 "C:\\repos\\ping-me\\script.ahk");
@@ -108,14 +119,14 @@ public class Controller {
         return driver;
     }
 
-    private void sendViaSelenium(String text) {
+    private void sendViaSelenium(String recipient, String text) {
         WebElement webElement = driver.findElement(By.xpath("//*[contains(text(), '" +
-                (!text.contains("sanityCheck") ? recipientTarget : recipientSource) + "')]"));
+                (!text.contains("sanityCheck") ? (recipient.isEmpty() ? recipientTarget : recipient) : recipientSource) + "')]"));
         webElement.click();
 
         // webElement = driver.findElement(By.xpath("//*[contains(text(), 'Type a message')]"));
         // this is the class id of the 1st element inside 'Type a message':
-        webElement = driver.findElements(By.cssSelector(".selectable-text.copyable-text.x15bjb6t.x1n2onr6")).get(1); // By.className throws "Compound class names not permitted
+        webElement = driver.findElements(By.cssSelector(".selectable-text.copyable-text." + recipientElementId)).get(1); // By.className throws "Compound class names not permitted
         webElement.click();
         webElement.sendKeys(text);
 
@@ -128,7 +139,7 @@ public class Controller {
         webElement.click();
     }
 
-    private String getDevice(String userAgent) {
+    private String getBrowser(String userAgent) {
         if (userAgent.contains("iPhone")) {
             return userAgent.contains("CriOS") ? "iPhone" : "iWatch";
         }
@@ -144,14 +155,14 @@ public class Controller {
         else if (userAgent.contains("Edg")) {
             return "Edge";
         }
-        return "Some device";
+        return "Some browser";
     }
 
 //    public FirefoxDriver getFirefoxInstance() {
 //        return null; // driver;
 //    }
 
-//    private void sendViaFirefox(String text) {
+//    private void sendViaFirefox(String recipient, String text) {
 //    }
 
 }

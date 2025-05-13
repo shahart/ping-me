@@ -12,6 +12,7 @@
 <h1>Ping Me for iWatch</h1>
 <h4>1st message will contain:</h4>
 <h4><i>I'm on iWatch --> low connectivity</i></h4>
+<h6><p id="timer"></p></h6>
 <button id="pingMe" type="submit">Just ping me</button>
 <p id="result"></p>
 <h3>Your text:</h3>
@@ -37,29 +38,55 @@
     <p id="locationResult"></p>
     <img src="apple_maps_icon.png" alt="apple-maps-logo" width="72" height="72"/>
     <br/><br/>
+    Non-default Recipient:
+    <br/><br/>
+    <label for="recipient"></label><input type="text" id="recipient" value=""/>
+    <br/><br/>
     <button id="sanityButton">Self Check</button>
     <p id="sanityResult"></p>
 </h6>
 <script>
 
+	var timeout = 40; // max seen time was 35 sec
+	var timeLeft = 0;
+
+    setInterval(function() {
+        if (timeLeft <= 0) {
+            document.getElementById("timer").innerHTML = "";
+        }
+        else {
+            document.getElementById("timer").innerHTML = timeLeft;
+        }
+        timeLeft -= 1;
+    }, 1000);
+
     <!-- navigator.geolocation is not available on iWatch -->
     function ping(text, field) {
+
+        timeLeft = timeout;
+
         try {
             var xhr = new XMLHttpRequest();
             var url = "https://" + window.location.hostname;
             // var url = "http://localhost:8080";
-            url += "/ping/" + text; // :8080/ping
+            var recipient = document.getElementById('recipient').value;
+            if (recipient == '') {
+                recipient = 'null';
+            }
+            url += "/ping/" + recipient + "/" + text; // :8080/ping
             xhr.open('GET', url, true);
-            xhr.timeout = 16000;
+            xhr.timeout = timeout * 1000;
             xhr.onload = () => {
                 // console.debug(xhr.status + "-" + xhr.responseText);
                 // alert(xhr.responseText == "0" ? "success" : "failure");
                 document.getElementById(field).innerHTML = "<h1>" + xhr.status + "</h1>";
+                timeLeft = 0;
             };
             xhr.ontimeout = (e) => {
                 // alert("Timeout");
                 // document.getElementById(field).innerHTML = "<h1>Timeout</h1>";
                 document.getElementById(field).innerHTML = "<h1>Timeout " + xhr.status + e + "</h1>";
+                timeLeft = 0;
             };
             document.getElementById(field).innerHTML = "<h1>before xhr</h1>";
             xhr.send(null);
@@ -69,6 +96,7 @@
             // console.error(err);
             // alert(err);
             document.getElementById(field).innerHTML = "<h1>Error</h1>";
+            timeLeft = 0;
         }
     }
 
@@ -100,9 +128,8 @@
         ping('sanityCheck', 'sanityResult');
     });
 
-    // TODO if lat/lon is negative, put N/S, E/W in accordance.
-
     function getGoogleMapsLink() {
+        // TODO if lat/lon is negative, put S/W in accordance.
         return 'https://www.google.com/maps/place/' + document.getElementById('lat').value + 'N+' + document.getElementById('lon').value + 'E';
     }
 

@@ -25,7 +25,7 @@ Now your buddy can text you using WhatsApp - in which answering is possible.
 
 - open it to a linked WhatsApp web instance https://web.whatsapp.com/
 
-- target recipient (TODO? input from UI) must be pinned at WhatsApp
+- non default recipient should be pinned at WhatsApp, otherwise it won't be found during run-time
 
 - mvn spring-boot:run -Dspring-boot.run.arguments=--recipient.target=Elvis
 
