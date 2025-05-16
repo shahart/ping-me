@@ -1,8 +1,10 @@
 package edu.pingme.messaging_stomp_websocket;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.servlet.http.HttpServletRequest;
 import org.openqa.selenium.By;
+//import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -19,7 +21,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 public class Controller {
@@ -44,16 +49,25 @@ public class Controller {
     @Value("${recipientElementId}")
     String recipientElementId;
 
-    long lastUsage = 0;
+    long lastUsage = System.currentTimeMillis();
 
     ChromeDriver driver;
 //  FirefoxDriver firefoxDriver;
 
+    Map<String, Integer> success = new ConcurrentHashMap<>();
+    Map<String, Integer> error = new ConcurrentHashMap<>();
+
+    public long getLastUsage() {
+        return lastUsage;
+    }
+
     @PostConstruct
     public void logConfig() {
         log.info("recipients: from '" + recipientSource + "' to default '" + recipientTarget);
+        log.info("Checking for configs... Wait, this might take 50 sec");
         driver = getChromeInstance(); // timeout is 60 sec
         // firefoxDriver = getFirefoxInstance();
+        pingMe("", "sanityCheck", null);
         log.info("Browser is up.");
     }
 
@@ -80,12 +94,12 @@ public class Controller {
             text = text.replaceAll("!", "?");
         }
 
-        String browser = getBrowser(request.getHeader("User-Agent"));
+        String browser = request == null ? "AppSanityCheck" : getBrowser(request.getHeader("User-Agent"));
         log.info("ping using browser '" + browser + "' to '" + recipient + "' with text '" + text);
 
         String prefix = browser + " message (low connectivity): "; // can prefix on new browser, but Keep It Simple
         if (! text.contains("sanityCheck")) {
-            if (System.currentTimeMillis() - lastUsage < 60_000 || ! recipient.isEmpty()) {
+            if (System.currentTimeMillis() - lastUsage < TimeUnit.MINUTES.toMillis(10) || ! recipient.isEmpty()) {
                 prefix = "";
             }
             lastUsage = System.currentTimeMillis();
@@ -95,6 +109,11 @@ public class Controller {
         sendViaSelenium(recipient, prefix + text);
         // sendViaAHK(prefix + text);
         log.info("Done sending.");
+
+        if (! text.contains("sanityCheck")) {
+            int prev = success.getOrDefault(recipient, 0);
+            success.put(recipient, prev + 1);
+        }
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -120,23 +139,32 @@ public class Controller {
     }
 
     private void sendViaSelenium(String recipient, String text) {
-        WebElement webElement = driver.findElement(By.xpath("//*[contains(text(), '" +
-                (!text.contains("sanityCheck") ? (recipient.isEmpty() ? recipientTarget : recipient) : recipientSource) + "')]"));
-        webElement.click();
+        try {
+            WebElement webElement = driver.findElement(By.xpath("//*[contains(text(), '" +
+                    (! text.contains("sanityCheck") ? (recipient.isEmpty() ? recipientTarget : recipient) : recipientSource) + "')]"));
+            webElement.click();
 
-        // webElement = driver.findElement(By.xpath("//*[contains(text(), 'Type a message')]"));
-        // this is the class id of the 1st element inside 'Type a message':
-        webElement = driver.findElements(By.cssSelector(".selectable-text.copyable-text." + recipientElementId)).get(1); // By.className throws "Compound class names not permitted
-        webElement.click();
-        webElement.sendKeys(text);
+            // webElement = driver.findElement(By.xpath("//*[contains(text(), 'Type a message')]"));
+            // this is the class id of the 1st element inside 'Type a message':
+            webElement = driver.findElements(By.cssSelector(".selectable-text.copyable-text." + recipientElementId)).get(1); // By.className throws "Compound class names not permitted
+            webElement.click();
+            webElement.sendKeys(text);
 
-        // instead of webElement.submit(); as it's not a form
-        webElement = driver.findElement(By.cssSelector(".x1c4vz4f.x2lah0s.xdl72j9.xfect85.x1iy03kw.x1lfpgzf"));
-        webElement.click();
+            // instead of webElement.submit(); as it's not a form
+            webElement = driver.findElement(By.cssSelector(".x1c4vz4f.x2lah0s.xdl72j9.xfect85.x1iy03kw.x1lfpgzf"));
+            webElement.click();
 
-        // back to source so response won't be marked as Read
-        webElement = driver.findElement(By.xpath("//*[contains(text(), '" + recipientSource + "')]"));
-        webElement.click();
+            // back to source so response won't be marked as Read
+            webElement = driver.findElement(By.xpath("//*[contains(text(), '" + recipientSource + "')]"));
+            webElement.click();
+        }
+        catch (Exception e) { // maybe NoSuchElementException ?!
+            if (! text.contains("sanityCheck")) {
+                int prev = error.getOrDefault(recipient, 0);
+                error.put(recipient, prev + 1);
+            }
+            throw e;
+        }
     }
 
     private String getBrowser(String userAgent) {
@@ -164,5 +192,13 @@ public class Controller {
 
 //    private void sendViaFirefox(String recipient, String text) {
 //    }
+
+    @PreDestroy
+    public void dumpStats() {
+        log.info("successes: " + success);
+        if (! error.isEmpty()) {
+            log.info("errors: " + error);
+        }
+    }
 
 }

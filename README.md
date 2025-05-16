@@ -27,7 +27,7 @@ Now your buddy can text you using WhatsApp - in which answering is possible.
 
 - non default recipient should be pinned at WhatsApp, otherwise it won't be found during run-time
 
-- mvn spring-boot:run -Dspring-boot.run.arguments=--recipient.target=Elvis
+- `mvn spring-boot:run -Dspring-boot.run.arguments=--recipient.target=Elvis`
 
 - Browse to http://localhost:8080/index.html just to make sure utility is up and running
 
@@ -37,7 +37,7 @@ Now your buddy can text you using WhatsApp - in which answering is possible.
 
 ## TODO
 
-- html text field for the recipient (empty for the server config). For that on WhatsApp web, focus on the favorites list
+- ~~html text field for the recipient (empty for the server config). For that on WhatsApp web, focus on the favorites list~~
 
 - Cloud
 - WebSocket
