@@ -4,7 +4,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.servlet.http.HttpServletRequest;
 import org.openqa.selenium.By;
-//import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -17,10 +17,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Base64;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,6 +48,9 @@ public class Controller {
     @Value("${recipientElementId}")
     String recipientElementId;
 
+    @Value("${password}")
+    String password;
+
     long lastUsage = System.currentTimeMillis();
 
     ChromeDriver driver;
@@ -63,18 +65,19 @@ public class Controller {
 
     @PostConstruct
     public void logConfig() {
+        log.info("Password: " + password);
         log.info("recipients: from '" + recipientSource + "' to default '" + recipientTarget);
-        log.info("Checking for configs... Wait, this might take 50 sec");
+        log.info("Checking for configs... Wait, this might take 2 minutes"); // minimum is 2 seconds
         driver = getChromeInstance(); // timeout is 60 sec
         // firefoxDriver = getFirefoxInstance();
         pingMe("", "sanityCheck", null);
         log.info("Browser is up.");
     }
 
-    @GetMapping("ping/{recipient}/{text}")
+    @PostMapping("ping/{recipient}")
     public ResponseEntity<Void> pingMe(
             @PathVariable("recipient") String recipient,
-            @PathVariable("text") String text,
+            @RequestBody String text,
             HttpServletRequest request) {
 
         // another quick and dirty - assuming there's no contact name = Null
@@ -83,19 +86,26 @@ public class Controller {
         }
 
         switch (text) {
-            case "0" -> text = message0;
-            case "1" -> text = message1;
-            case "2" -> text = message2;
+            case "^0$" -> text = message0;
+            case "^1$" -> text = message1;
+            case "^2$" -> text = message2;
+            case "^3$" -> text = "Like";
+            case "^4$" -> text = "Please repeat, message lost.";
+            default -> {
+                if (! text.contains("sanityCheck")) {
+                    log.info("Encrypted text: " + text);
+                    text = new String(Base64.getDecoder().decode(text));
+                    text = Utils.deEnCrypt(text, password);
+                }
+            }
         }
 
-        // quick and dirty fix, text should be on body param
-        if (text.startsWith("https:--")) {
-            text = text.replaceAll("-", "/");
-            text = text.replaceAll("!", "?");
-        }
+        String browser = request == null ? "AppSanityCheck" : Utils.getBrowser(request.getHeader("User-Agent"));
 
-        String browser = request == null ? "AppSanityCheck" : getBrowser(request.getHeader("User-Agent"));
-        log.info("ping using browser '" + browser + "' to '" + recipient + "' with text '" + text);
+        log.info("Ping using browser '{}' to '{}' with text '{}' " +
+                        "from {}",
+                browser, (recipient.isEmpty() ? recipientTarget : recipient), text,
+                (request == null ? "unknown" : (request.getRemoteHost() + "/ " + request.getHeader("x-forwarded-for"))));
 
         String prefix = browser + " message (low connectivity): "; // can prefix on new browser, but Keep It Simple
         if (! text.contains("sanityCheck")) {
@@ -106,7 +116,9 @@ public class Controller {
         }
 
         // sendViaFirefox(recipient, prefix + text); // TODO?
-        sendViaSelenium(recipient, prefix + text);
+        if (! sendViaSelenium(recipient, prefix + text)) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
         // sendViaAHK(prefix + text);
         log.info("Done sending.");
 
@@ -138,7 +150,7 @@ public class Controller {
         return driver;
     }
 
-    private void sendViaSelenium(String recipient, String text) {
+    private boolean sendViaSelenium(String recipient, String text) {
         try {
             WebElement webElement = driver.findElement(By.xpath("//*[contains(text(), '" +
                     (! text.contains("sanityCheck") ? (recipient.isEmpty() ? recipientTarget : recipient) : recipientSource) + "')]"));
@@ -157,6 +169,15 @@ public class Controller {
             // back to source so response won't be marked as Read
             webElement = driver.findElement(By.xpath("//*[contains(text(), '" + recipientSource + "')]"));
             webElement.click();
+            return true;
+        }
+        catch (NoSuchElementException e2) {
+            log.error("NoSuchElementException");
+            if (! text.contains("sanityCheck")) {
+                int prev = error.getOrDefault(recipient, 0);
+                error.put(recipient, prev + 1);
+            }
+            return false;
         }
         catch (Exception e) { // maybe NoSuchElementException ?!
             if (! text.contains("sanityCheck")) {
@@ -165,25 +186,6 @@ public class Controller {
             }
             throw e;
         }
-    }
-
-    private String getBrowser(String userAgent) {
-        if (userAgent.contains("iPhone")) {
-            return userAgent.contains("CriOS") ? "iPhone" : "iWatch";
-        }
-        else if (userAgent.contains("Postman")) {
-            return "Postman";
-        }
-        else if (userAgent.contains("Windows")) {
-            return "Windows";
-        }
-        else if (userAgent.contains("Samsung")) {
-            return "Samsung Android";
-        }
-        else if (userAgent.contains("Edg")) {
-            return "Edge";
-        }
-        return "Some browser";
     }
 
 //    public FirefoxDriver getFirefoxInstance() {

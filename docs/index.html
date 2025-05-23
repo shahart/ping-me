@@ -14,6 +14,10 @@
 <h4><i>I'm on iWatch --> low connectivity</i></h4>
 <h6><p id="timer"></p></h6>
 <button id="pingMe" type="submit">Just ping me</button>
+<br/><br/>
+Password:
+<br/>
+<label for="password"></label><input type="text" id="password" value="1234"/>
 <p id="result"></p>
 <h3>Your text:</h3>
 <h6>
@@ -34,7 +38,7 @@
     <br/>
     LON:<label for="lon"></label><input type="text" id="lon" value="35.2029" size="8"/>
     <br/><br/>
-    <button id="locationButton">Share Location</button>
+    <button id="locationButton" type="submit">Share Location</button>
     <p id="locationResult"></p>
     <img src="apple_maps_icon.png" alt="apple-maps-logo" width="72" height="72"/>
     <br/><br/>
@@ -42,13 +46,13 @@
     <br/><br/>
     <label for="recipient"></label><input type="text" id="recipient" value=""/>
     <br/><br/>
-    <button id="sanityButton">Self Check</button>
+    <button id="sanityButton" type="submit">Self Check</button>
     <p id="sanityResult"></p>
 </h6>
 <script>
 
-	var timeout = 40; // max seen time was 35 sec
-	var timeLeft = 0;
+    var timeout = 50; // max seen time was 35 sec
+    var timeLeft = 0;
 
     setInterval(function() {
         if (timeLeft <= 0) {
@@ -60,10 +64,36 @@
         timeLeft -= 1;
     }, 1000);
 
+    function clearAll() {
+        document.getElementById('result').innerHTML = '';
+        document.getElementById('result1').innerHTML = '';
+        document.getElementById('result2').innerHTML = '';
+        document.getElementById('resultGim').innerHTML = '';
+        document.getElementById('repeatResult').innerHTML = '';
+        document.getElementById('likeResult').innerHTML = '';
+        document.getElementById('locationResult').innerHTML = '';
+        document.getElementById('sanityResult').innerHTML = '';
+    }
+
+    function bytesToBase64(bytes) {
+        const binString = String.fromCodePoint(...bytes);
+        return btoa(binString);
+    }
+
+    function encrypt(text) {
+        var password = document.getElementById('password').value;
+        var s = "";
+        for (let i = 0; i < text.length; ++ i) {
+            s = s + (String.fromCharCode(text.charCodeAt(i) ^ password.charCodeAt(i % password.length)));
+        }
+        return bytesToBase64(new TextEncoder().encode(s));
+    }
+
     <!-- navigator.geolocation is not available on iWatch -->
     function ping(text, field) {
 
         timeLeft = timeout;
+        clearAll();
 
         try {
             var xhr = new XMLHttpRequest();
@@ -73,8 +103,8 @@
             if (recipient == '') {
                 recipient = 'null';
             }
-            url += "/ping/" + recipient + "/" + text; // :8080/ping
-            xhr.open('GET', url, true);
+            url += "/ping/" + recipient; // :8080/ping
+            xhr.open('POST', url, true);
             xhr.timeout = timeout * 1000;
             xhr.onload = () => {
                 // console.debug(xhr.status + "-" + xhr.responseText);
@@ -89,7 +119,7 @@
                 timeLeft = 0;
             };
             document.getElementById(field).innerHTML = "<h1>before xhr</h1>";
-            xhr.send(null);
+            xhr.send(text);
             document.getElementById(field).innerHTML = "<h1>after xhr</h1>";
         }
         catch (err) {
@@ -101,31 +131,31 @@
     }
 
     document.getElementById("pingMe").addEventListener('click', function(e) {
-        ping('0', 'result');
+        ping('^0$', 'result');
     });
 
     document.getElementById("msg1").addEventListener('click', function(e) {
-        ping('1', 'result1');
+        ping('^1$', 'result1');
     });
 
     document.getElementById("msg2").addEventListener('click', function(e) {
-        ping('2', 'result2');
+        ping('^2$', 'result2');
     });
 
     document.getElementById("buttonG").addEventListener('click', function(e) {
-        ping(document.getElementById('gim').value, 'resultGim');
+        ping(encrypt(document.getElementById('gim').value), 'resultGim');
     });
 
     document.getElementById("repeatButton").addEventListener('click', function(e) {
-        ping('Please repeat, message lost.', 'repeatResult');
+        ping('^4$' /*encrypt('Please repeat, message lost.')*/, 'repeatResult');
     });
 
     document.getElementById("likeButton").addEventListener('click', function(e) {
-        ping('Like', 'likeResult');
+        ping('^3$' /*encrypt('Like')*/, 'likeResult');
     });
 
     document.getElementById("sanityButton").addEventListener('click', function(e) {
-        ping('sanityCheck', 'sanityResult');
+        ping(encrypt('sanityCheck'), 'sanityResult');
     });
 
     function getGoogleMapsLink() {
@@ -134,15 +164,14 @@
     }
 
     function getWazeLink() {
-        return 'https://waze.com/ul!ll=' + document.getElementById('lat').value + '%2C' + document.getElementById('lon').value;
+        return 'https://waze.com/ul?ll=' + document.getElementById('lat').value + '%2C' + document.getElementById('lon').value;
     }
 
     document.getElementById("locationButton").addEventListener('click', function(e) {
         let mapsLink = getGoogleMapsLink()
         let locUrl = mapsLink;
         locUrl += '    WAZE: ' + getWazeLink();
-        locUrl = locUrl.replaceAll('/', '-');
-        ping(locUrl, 'locationResult');
+        ping(encrypt(locUrl), 'locationResult');
         document.getElementById('locationResult').innerHTML = document.getElementById('locationResult').innerHTML + "  " +
             "<a href=" + mapsLink + ">" + mapsLink + "</a>";
     });

@@ -29,11 +29,11 @@ public class MessagingStompWebsocketApplication {
 				System.out.println("Config is 100% ?! Proceed ? [Y/n]");
 				BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 				try {
-					String response = br.readLine();
+					String response = br.readLine(); // "Y";
 					if (! "Y".equals(response)) {
 						System.exit(0);
 					}
-				} catch (IOException e) {
+				} catch (/*IO*/Exception e) {
 					e.printStackTrace();
 				}
 			}
