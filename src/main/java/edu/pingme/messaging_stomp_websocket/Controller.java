@@ -30,9 +30,6 @@ public class Controller {
 
     private static final Logger log = LoggerFactory.getLogger(Controller.class);
 
-    @Value("${message.0}")
-    String message0;
-
     @Value("${message.1}")
     String message1;
 
@@ -51,6 +48,7 @@ public class Controller {
     @Value("${password}")
     String password;
 
+    Map<String, Long> lastUsagePerRecipientMap = new ConcurrentHashMap<>();
     long lastUsage = System.currentTimeMillis();
 
     ChromeDriver driver;
@@ -85,8 +83,10 @@ public class Controller {
             recipient = "";
         }
 
+        recipient = (! text.contains("sanityCheck") ? (recipient.isEmpty() ? recipientTarget : recipient) : recipientSource);
+
         switch (text) {
-            case "^0$" -> text = message0;
+            case "^0$" -> text = "Ping Me";
             case "^1$" -> text = message1;
             case "^2$" -> text = message2;
             case "^3$" -> text = "Like";
@@ -102,24 +102,25 @@ public class Controller {
 
         String browser = request == null ? "AppSanityCheck" : Utils.getBrowser(request.getHeader("User-Agent"));
 
+        String prefix = browser + " message (low connectivity): "; // can prefix on new browser, but Keep It Simple
+        long lastUsageRecipient = lastUsagePerRecipientMap.getOrDefault(recipient, 0L);
+        if (System.currentTimeMillis() - lastUsageRecipient < TimeUnit.MINUTES.toMillis(3)) {
+            prefix = "";
+        }
+        lastUsagePerRecipientMap.put(recipient, System.currentTimeMillis());
+        lastUsage = System.currentTimeMillis();
+
         log.info("Ping using browser '{}' to '{}' with text '{}' " +
                         "from {}",
                 browser, (recipient.isEmpty() ? recipientTarget : recipient), text,
                 (request == null ? "unknown" : (request.getRemoteHost() + "/ " + request.getHeader("x-forwarded-for"))));
 
-        String prefix = browser + " message (low connectivity): "; // can prefix on new browser, but Keep It Simple
-        if (! text.contains("sanityCheck")) {
-            if (System.currentTimeMillis() - lastUsage < TimeUnit.MINUTES.toMillis(10) || ! recipient.isEmpty()) {
-                prefix = "";
-            }
-            lastUsage = System.currentTimeMillis();
-        }
-
-        // sendViaFirefox(recipient, prefix + text); // TODO?
+        // if (! sendViaFirefox(recipient, prefix + text); // TODO?
         if (! sendViaSelenium(recipient, prefix + text)) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        // sendViaAHK(prefix + text);
+        // if (! sendViaAHK(prefix + text);
+
         log.info("Done sending.");
 
         if (! text.contains("sanityCheck")) {
@@ -152,8 +153,7 @@ public class Controller {
 
     private boolean sendViaSelenium(String recipient, String text) {
         try {
-            WebElement webElement = driver.findElement(By.xpath("//*[contains(text(), '" +
-                    (! text.contains("sanityCheck") ? (recipient.isEmpty() ? recipientTarget : recipient) : recipientSource) + "')]"));
+            WebElement webElement = driver.findElement(By.xpath("//*[contains(text(), '" + recipient + "')]"));
             webElement.click();
 
             // webElement = driver.findElement(By.xpath("//*[contains(text(), 'Type a message')]"));
