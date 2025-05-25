@@ -1,6 +1,15 @@
 package edu.pingme.messaging_stomp_websocket;
 
+import net.fellbaum.jemoji.EmojiManager;
+import net.fellbaum.jemoji.IndexedEmoji;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+
 public class Utils {
+
+    private static final Logger log = LoggerFactory.getLogger(Utils.class);
 
     public static String deEnCrypt(String input, String password) {
         StringBuilder sb = new StringBuilder();
@@ -27,5 +36,20 @@ public class Utils {
             return "Edge";
         }
         return "Some browser";
+    }
+
+    public static String stripEmoji(String text) {
+        // TODO consider using Java 21 Character.isEmoji
+        String result = EmojiManager.replaceAllEmojis(text,"<Emoji>");
+        if (! result.equals(text)) {
+            List<IndexedEmoji> emojis = EmojiManager.extractEmojisInOrderWithIndex(text);
+            for (IndexedEmoji emoji: emojis) {
+                List<String> aliases = emoji.getEmoji().getAllAliases();
+                String replacement = aliases.isEmpty() ? "<Emoji>" : aliases.getFirst();
+                result = result.replaceFirst("<Emoji>", replacement);
+            }
+            log.warn("Emojis were found. New text: " + result);
+        }
+        return result;
     }
 }

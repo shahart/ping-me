@@ -32,4 +32,9 @@ public class UtilsTest {
         String expectedInput = Base64.getEncoder().encodeToString(Utils.deEnCrypt(text, password).getBytes());
         Assertions.assertEquals(text, Utils.deEnCrypt(new String(Base64.getDecoder().decode(expectedInput)), password));
     }
+
+    @Test
+    public void testStripEmoji() {
+        Assertions.assertEquals("sanityCheck :face_holding_back_tears: and now :+1:", Utils.stripEmoji("sanityCheck \uD83E\uDD79 and now \uD83D\uDC4D")); // .. 🥹 .. 👍
+    }
 }

@@ -39,11 +39,11 @@ public class Controller {
     @Value("${recipient.source}")
     String recipientSource;
 
-    @Value("${recipient.target}")
+    @Value("${recipient.target:Shahar}")
     String recipientTarget;
 
     @Value("${recipientElementId}")
-    String recipientElementId;
+    String recipientElementId = "x15bjb6t.x1n2onr6";
 
     @Value("${password}")
     String password;
@@ -141,18 +141,22 @@ public class Controller {
     }
 
     public ChromeDriver getChromeInstance() {
-        System.setProperty("webdriver.chrome.driver", "c:\\repos\\selenium\\chromedriver.exe");
-        ChromeOptions options = new ChromeOptions();
-        options.setExperimentalOption("debuggerAddress", "127.0.0.1:9222");
-        ChromeDriver driver = new ChromeDriver(options);
-        if (! Objects.requireNonNull(driver.getTitle()).contains("WhatsApp")) {
-            throw new RuntimeException("Invalid Chrome's window's title: " + driver.getTitle());
+        if (driver == null) {
+            System.setProperty("webdriver.chrome.driver", "c:\\repos\\selenium\\chromedriver.exe");
+            ChromeOptions options = new ChromeOptions();
+            options.setExperimentalOption("debuggerAddress", "127.0.0.1:9222");
+            ChromeDriver driver = new ChromeDriver(options);
+            if (!Objects.requireNonNull(driver.getTitle()).contains("WhatsApp")) {
+                throw new RuntimeException("Invalid Chrome's window's title: " + driver.getTitle());
+            }
+            this.driver = driver;
         }
         return driver;
     }
 
-    private boolean sendViaSelenium(String recipient, String text) {
+    boolean sendViaSelenium(String recipient, String text) {
         try {
+            text = Utils.stripEmoji(text);
             WebElement webElement = driver.findElement(By.xpath("//*[contains(text(), '" + recipient + "')]"));
             webElement.click();
 
