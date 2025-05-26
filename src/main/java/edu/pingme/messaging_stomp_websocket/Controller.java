@@ -3,6 +3,7 @@ package edu.pingme.messaging_stomp_websocket;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import jakarta.servlet.http.HttpServletRequest;
+import net.fellbaum.jemoji.EmojiManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
@@ -70,6 +71,7 @@ public class Controller {
         // firefoxDriver = getFirefoxInstance();
         pingMe("", "sanityCheck", null);
         log.info("Browser is up.");
+        log.info("Emojis: " + EmojiManager.getAllEmojis().size());
     }
 
     @PostMapping("ping/{recipient}")

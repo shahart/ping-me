@@ -9,6 +9,8 @@
 <noscript>
     <h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Enable Javascript and reload this page!</h2>
 </noscript>
+<h2>This is for demo purposes. It won't work as Github pages are static without a server behind, so POST gets 405</h2>
+<hr>
 <h1>Ping Me for iWatch</h1>
 <h4>1st message will contain:</h4>
 <h4><i>I'm on iWatch --> low connectivity</i></h4>
@@ -48,6 +50,8 @@ Password:
     <br/><br/>
     <button id="sanityButton" type="submit">Self Check</button>
     <p id="sanityResult"></p>
+    <br/><br/>
+    <a href="emojies.html">Emoji Dictionary</a>
 </h6>
 <script>
 
@@ -167,10 +171,15 @@ Password:
         return 'https://waze.com/ul?ll=' + document.getElementById('lat').value + '%2C' + document.getElementById('lon').value;
     }
 
+    function getAppleMapsLink() {
+        return 'https://maps.apple.com/place?coordinate=' + document.getElementById('lat').value + '%2C' + document.getElementById('lon').value;
+    }
+
     document.getElementById("locationButton").addEventListener('click', function(e) {
         let mapsLink = getGoogleMapsLink()
         let locUrl = mapsLink;
         locUrl += '    WAZE: ' + getWazeLink();
+        locUrl += '    AppleMaps: ' + getAppleMapsLink();
         ping(encrypt(locUrl), 'locationResult');
         document.getElementById('locationResult').innerHTML = document.getElementById('locationResult').innerHTML + "  " +
             "<a href=" + mapsLink + ">" + mapsLink + "</a>";

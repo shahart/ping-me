@@ -45,6 +45,10 @@ Now your buddy can text you using WhatsApp - in which answering is possible.
 - WebSocket
 - Open Chat like https://matrix.org/
 
+## Bonus
+
+Emoji dictionary, see bottom of https://shahart.github.io/ping-me/ 
+
 ![](docs/ping-me.png)
 
 [![Java CI with Gradle](https://github.com/shahart/ping-me/actions/workflows/maven.yml/badge.svg)](https://github.com/shahart/ping-me/actions/workflows/maven.yml)
