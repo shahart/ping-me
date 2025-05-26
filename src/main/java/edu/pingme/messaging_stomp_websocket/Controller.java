@@ -104,10 +104,10 @@ public class Controller {
 
         String browser = request == null ? "AppSanityCheck" : Utils.getBrowser(request.getHeader("User-Agent"));
 
-        String prefix = browser + " message (low connectivity): "; // can prefix on new browser, but Keep It Simple
+        String postfix = " -- Sent from my " + browser; // can prefix on new browser, but Keep It Simple
         long lastUsageRecipient = lastUsagePerRecipientMap.getOrDefault(recipient, 0L);
         if (System.currentTimeMillis() - lastUsageRecipient < TimeUnit.MINUTES.toMillis(3)) {
-            prefix = "";
+            postfix = "";
         }
         lastUsagePerRecipientMap.put(recipient, System.currentTimeMillis());
         lastUsage = System.currentTimeMillis();
@@ -118,7 +118,7 @@ public class Controller {
                 (request == null ? "unknown" : (request.getRemoteHost() + "/ " + request.getHeader("x-forwarded-for"))));
 
         // if (! sendViaFirefox(recipient, prefix + text); // TODO?
-        if (! sendViaSelenium(recipient, prefix + text)) {
+        if (! sendViaSelenium(recipient, text + postfix)) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
         // if (! sendViaAHK(prefix + text);

@@ -11,7 +11,7 @@
 </noscript>
 <h1>Ping Me for iWatch</h1>
 <h4>1st message will contain:</h4>
-<h4><i>I'm on iWatch --> low connectivity</i></h4>
+<h4><i>Sent from my iWatch</i></h4>
 <h6><p id="timer"></p></h6>
 <button id="pingMe" type="submit">Just ping me</button>
 <br/><br/>
@@ -53,7 +53,7 @@ Password:
 </h6>
 <script>
 
-    var timeout = 50; // max seen time was 35 sec
+    var timeout = 90; // max seen time was 55 sec
     var timeLeft = 0;
 
     setInterval(function() {
@@ -177,7 +177,7 @@ Password:
         let mapsLink = getGoogleMapsLink()
         let locUrl = mapsLink;
         locUrl += '    WAZE: ' + getWazeLink();
-        locUrl += '    AppleMaps: ' + getAppleMapsLink();
+        locUrl += '    Apple-Maps: ' + getAppleMapsLink();
         ping(encrypt(locUrl), 'locationResult');
         document.getElementById('locationResult').innerHTML = document.getElementById('locationResult').innerHTML + "  " +
             "<a href=" + mapsLink + ">" + mapsLink + "</a>";

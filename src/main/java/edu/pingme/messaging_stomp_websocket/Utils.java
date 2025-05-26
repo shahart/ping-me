@@ -24,16 +24,16 @@ public class Utils {
             return userAgent.contains("CriOS") ? "iPhone" : "iWatch";
         }
         else if (userAgent.contains("Postman")) {
-            return "Postman";
+            return "Postman Dev Tools";
         }
         else if (userAgent.contains("Windows")) {
             return "Windows";
         }
         else if (userAgent.contains("Samsung")) {
-            return "Samsung Android";
+            return "Samsung Galaxy";
         }
         else if (userAgent.contains("Edg")) {
-            return "Edge";
+            return "Edge browser";
         }
         return "Some browser";
     }

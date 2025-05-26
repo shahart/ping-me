@@ -41,7 +41,7 @@ public class UtilsTest {
         Assertions.assertEquals("sanityCheck :face_holding_back_tears: and now :+1:", Utils.stripEmoji("sanityCheck \uD83E\uDD79 and now \uD83D\uDC4D")); // .. 🥹 .. 👍
     }
 
-    @Disabled // Test
+    @Disabled
     public void generateDictionary() {
         // copy-paste this output to emojis.html
         for (Emoji emoji: EmojiManager.getAllEmojis()) {
@@ -51,7 +51,7 @@ public class UtilsTest {
             }
             for (String al: emoji.getAllAliases()) {
                 if (al.contains("'")) {
-                    System.out.println(al);
+                    // System.out.println("ERROR: " + al); // '( '😢': 'crying face '. =') '🥲': 'smiling face with tear ', :'-D '😂': 'face with tears of joy '
                 }
                 else if (alias.contains(al)) {
                     alias += al + " ";
