@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="description" content="Ping me for iWatch">
     <meta name='viewport' content='width=device-width, height=device-height, initial-scale=1.0'>
     <title>Ping Me</title>
 </head>
@@ -181,8 +182,7 @@ Password:
         locUrl += '    WAZE: ' + getWazeLink();
         locUrl += '    Apple-Maps: ' + getAppleMapsLink();
         ping(encrypt(locUrl), 'locationResult');
-        document.getElementById('locationResult').innerHTML = document.getElementById('locationResult').innerHTML + "  " +
-            "<a href=" + mapsLink + ">" + mapsLink + "</a>";
+        document.getElementById('locationResult').innerHTML = locUrl;
     });
 
 </script>

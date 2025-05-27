@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <meta name="description" content="Ping me for iWatch">
     <meta name='viewport' content='width=device-width, height=device-height, initial-scale=1.0'>
     <title>Ping Me</title>
 </head>
@@ -49,7 +50,7 @@ Password:
     <button id="sanityButton" type="submit">Self Check</button>
     <p id="sanityResult"></p>
     <br/><br/>
-    <a href="emojies.html">Emoji Dictionary</a>
+    <a href="https://shahart.github.io/ping-me/emojies.html">Emoji Dictionary</a>
 </h6>
 <script>
 
@@ -179,8 +180,7 @@ Password:
         locUrl += '    WAZE: ' + getWazeLink();
         locUrl += '    Apple-Maps: ' + getAppleMapsLink();
         ping(encrypt(locUrl), 'locationResult');
-        document.getElementById('locationResult').innerHTML = document.getElementById('locationResult').innerHTML + "  " +
-            "<a href=" + mapsLink + ">" + mapsLink + "</a>";
+        document.getElementById('locationResult').innerHTML = locUrl;
     });
 
 </script>

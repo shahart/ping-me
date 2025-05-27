@@ -47,7 +47,7 @@ Now your buddy can text you using WhatsApp - in which answering is possible.
 
 ## Bonus
 
-Emoji dictionary, see bottom of https://shahart.github.io/ping-me/ 
+Emoji dictionary, see https://shahart.github.io/ping-me/emojies.html. Thanks to Issue #3
 
 ![](docs/ping-me.png)
 
