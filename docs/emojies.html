@@ -20,17 +20,23 @@
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 <h3 class="notranslate">
-These 5,042 emojis v16.0 are based on <a href="https://github.com/felldo/JEmoji" target="_blank">JEmoji</a> v1.7.3
+These 3K emojis are based on <a href="https://github.com/felldo/JEmoji" target="_blank">JEmoji</a> v1.7.3
 <br/>
-Check also <a href="https://emojipedia.org/emoji-16.0" target="_blank">Emoji Pedia</a>
+Check also <a href="https://emojigraph.org/he/emoji-16.0/" target="_blank">Emoji Graph</a>
 </h3>
-</br></br>
+<br/><br/>
 Emoji:
 <br/>
-<label for="emoji"></label><input type="text" id="emoji" value="😂"/>
+<label for="emoji"></label><input type="text" id="emoji" value="🤷"/>
 <button id="alias" class="notranslate">Alias</button>
-<p id="result">face with tears of joy :,D :,-D :joy: =,D =,-D</p>
-</br>
+<p id="result">
+    person shrugging :shrug: :person_shrugging:
+    <br/><br/>
+    <a href="https://emojigraph.org/he/search/?q=🤷&searchLang=he" target="_blank">Another dictionary alternative</a>
+    <br/><br/>
+    <a href="https://emojigraph.org/he/person-shrugging/" target="_blank">I'm Feeling Lucky 🤷</a>
+</p>
+<br/>
 <a href="https://github.com/shahart/ping-me" target="_blank" class="notranslate">
     >>
     <svg height="32" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="32" data-view-component="true" class="octicon octicon-mark-github v-align-middle">
@@ -5101,7 +5107,19 @@ Emoji:
             return;
         }
         textValue = textValue.trim();
-        document.getElementById("result").innerHTML = dict[textValue.charAt(0)+textValue.charAt(1)];
+        let dictValue = dict[textValue.charAt(0) + textValue.charAt(1)];
+        let firstAlias = "person-shrugging";
+        try {
+            let lastIdx = dictValue.lastIndexOf(":", dictValue.length - 3);
+            firstAlias = dictValue.substring(lastIdx+1, dictValue.length - 2).trim().replaceAll("_", "-");
+        }
+        catch (err) {
+            console.error(err);
+        }
+        document.getElementById("result").innerHTML = dictValue + "<br/><br/>" +
+            "<a href=\"https://emojigraph.org/he/search/?q=" + textValue + "&searchLang=he\" target=\"_blank\">Another dictionary alternative</a>" +
+            "<br/><br/>" +
+            "<a href=\"https://emojigraph.org/he/" + firstAlias + "/\" target=\"_blank\">I'm Feeling Lucky " + textValue + "</a>";
     });
 </script>
 </body>
