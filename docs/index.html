@@ -43,9 +43,11 @@ Password:
     <br/><br/>
     <button id="locationButton" type="submit">Share Location</button>
     <p id="locationResult"></p>
-    <p id="locationResultUrl"> <a href="https://www.google.com/maps/place/31.78822N+35.2029E">https://www.google.com/maps/place/31.78822N+35.2029E</a><br>
-           WAZE: <a href="https://waze.com/ul?ll=31.78822%2C35.2029">https://waze.com/ul?ll=31.78822%2C35.2029</a><br>
-           AppleMaps: <a href="https://maps.apple.com/search?center=31.78822%2C35.2029">https://maps.apple.com/search?center=31.78822%2C35.2029</a></p>
+    <p id="locationResultUrl">Google-Maps: <a href="https://www.google.com/maps/place/31.78822N+35.2029E">https://www.google.com/maps/place/31.78822N+35.2029E</a><br>
+           Waze: <a href="https://waze.com/ul?ll=31.78822%2C35.2029">https://waze.com/ul?ll=31.78822%2C35.2029</a><br>
+           Apple-Maps: <a href="https://maps.apple.com/search?center=31.78822%2C35.2029">https://maps.apple.com/search?center=31.78822%2C35.2029</a><br>
+           Here-We-Go: <a href="https://wego.here.com/l/31.78822,35.2029">https://wego.here.com/l/31.78822,35.2029</a>
+    </p>
     <img src="apple_maps_icon.png" alt="apple-maps-logo" width="72" height="72"/>
     <br/><br/>
     Non-default Recipient:
@@ -166,28 +168,54 @@ Password:
         ping(encrypt('sanityCheck'), 'sanityResult');
     });
 
+    function getGoogleMapsLinkOnly() {
+        // TODO if lat/lon is negative, put S/W in accordance.
+        return 'https://www.google.com/maps/place/' + document.getElementById('lat').value + 'N+' + document.getElementById('lon').value + 'E';
+    }
+
     function getGoogleMapsLink() {
         // TODO if lat/lon is negative, put S/W in accordance.
-        let googleMapsLink =  'https://www.google.com/maps/place/' + document.getElementById('lat').value + 'N+' + document.getElementById('lon').value + 'E';
+        let googleMapsLink = getGoogleMapsLinkOnly();
         return "<a href=\"" + googleMapsLink + "\"> " + googleMapsLink + " </a><br/>";
     }
 
+    function getWazeLinkOnly() {
+        return 'https://waze.com/ul?ll=' + document.getElementById('lat').value + '%2C' + document.getElementById('lon').value;
+    }
+
     function getWazeLink() {
-        let wazeLink = 'https://waze.com/ul?ll=' + document.getElementById('lat').value + '%2C' + document.getElementById('lon').value;
+        let wazeLink = getWazeLinkOnly();
         return "<a href=\"" + wazeLink + "\"> " + wazeLink + " </a><br/>";
     }
 
+    function getAppleMapsLinkOnly() {
+        return 'https://maps.apple.com/place?coordinate=' + document.getElementById('lat').value + '%2C' + document.getElementById('lon').value;
+    }
+
     function getAppleMapsLink() {
-        let appleMapsLink = 'https://maps.apple.com/place?coordinate=' + document.getElementById('lat').value + '%2C' + document.getElementById('lon').value;
-        return "<a href=\"" + appleMapsLink + "\"> " + appleMapsLink + " </a>";
+        let appleMapsLink = getAppleMapsLinkOnly();
+        return "<a href=\"" + appleMapsLink + "\"> " + appleMapsLink + " </a><br/>";
+    }
+
+    function getHereWeGoLinkOnly() {
+        return 'https://wego.here.com/l/' + document.getElementById('lat').value + ',' + document.getElementById('lon').value;
+    }
+
+    function getHereWeGoLink() {
+        let hereWeGoLink = getHereWeGoLinkOnly();
+        return "<a href=\"" + hereWeGoLink + "\"> " + hereWeGoLink + " </a>";
     }
 
     document.getElementById("locationButton").addEventListener('click', function(e) {
-        let mapsLink = getGoogleMapsLink()
-        let locUrl = mapsLink;
-        locUrl += '    WAZE: ' + getWazeLink();
+        let locUrl = 'Google-Maps: ' + getGoogleMapsLink();
+        locUrl += '    Waze: ' + getWazeLink();
         locUrl += '    Apple-Maps: ' + getAppleMapsLink();
-        ping(encrypt(locUrl), 'locationResult');
+        locUrl += '    Here-We-Go: ' + getHereWeGoLink();
+        let locMsg = 'Google-Maps: ' + getGoogleMapsLinkOnly();
+        locMsg += '    Waze: ' + getWazeLinkOnly();
+        locMsg += '    Apple-Maps: ' + getAppleMapsLinkOnly();
+        locMsg += '    Here-We-Go: ' + getHereWeGoLinkOnly();
+        ping(encrypt(locMsg), 'locationResult');
         document.getElementById('locationResultUrl').innerHTML = locUrl;
     });
 

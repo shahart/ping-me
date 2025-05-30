@@ -64,14 +64,16 @@ public class Controller {
 
     @PostConstruct
     public void logConfig() {
+        log.info("==============================");
         log.info("Password: " + password);
         log.info("recipients: from '" + recipientSource + "' to default '" + recipientTarget);
         log.info("Checking for configs... Wait, this might take 2 minutes"); // minimum is 2 seconds
-        driver = getChromeInstance(); // timeout is 60 sec
+        driver = getChromeInstance(); // timeout is 60 sec // null
         // firefoxDriver = getFirefoxInstance();
-        pingMe("", "sanityCheck", null);
+        pingMe("", "sanityCheck", null); //
         log.info("Browser is up.");
         log.info("Emojis: " + EmojiManager.getAllEmojis().size());
+        log.info("==============================");
     }
 
     @PostMapping("ping/{recipient}")
