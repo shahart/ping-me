@@ -26,6 +26,7 @@ Password:
 <h6>
     <label for="gim"></label><input type="text" id="gim" value=""/>
     <button id="buttonG">Send</button>
+    <p id="resultGimEnc"></p>
     <p id="resultGim"></p>
     <button id="msg1" type="submit">Predefined Message 1</button>
     <p id="result1"></p>
@@ -90,17 +91,26 @@ Password:
         return btoa(binString);
     }
 
-    function encrypt(text) {
+    function justEncrypt(text) {
         var password = document.getElementById('password').value;
         var s = "";
         for (let i = 0; i < text.length; ++ i) {
             s = s + (String.fromCharCode(text.charCodeAt(i) ^ password.charCodeAt(i % password.length)));
         }
+        return s;
+    }
+
+    function encrypt(text) {
+        var s = justEncrypt(text);
         return bytesToBase64(new TextEncoder().encode(s));
     }
 
     <!-- navigator.geolocation is not available on iWatch -->
     function ping(text, field) {
+
+        if (field == 'resultGim') {
+            document.getElementById('resultGimEnc').innerHTML = text;
+        }
 
         timeLeft = timeout;
         clearAll();
@@ -153,7 +163,13 @@ Password:
     });
 
     document.getElementById("buttonG").addEventListener('click', function(e) {
-        ping(encrypt(document.getElementById('gim').value), 'resultGim');
+        let text = document.getElementById('gim').value;
+        if (text.endsWith('=')) {
+            document.getElementById('resultGimEnc').innerHTML = justEncrypt(atob(text));
+        }
+        else {
+            ping(encrypt(text), 'resultGim');
+        }
     });
 
     document.getElementById("repeatButton").addEventListener('click', function(e) {
