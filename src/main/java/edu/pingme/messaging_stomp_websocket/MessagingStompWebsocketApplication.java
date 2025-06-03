@@ -41,7 +41,7 @@ public class MessagingStompWebsocketApplication {
 		context = app.run(args);
 	}
 
-	@Scheduled(fixedDelay = 60_000L)
+	@Scheduled(fixedDelay = 60_000L, initialDelay = 120_000L)
 	public void appTimeout() {
 		long lastUsage = context.getBean(Controller.class).getLastUsage();
 		if (System.currentTimeMillis() - lastUsage > TimeUnit.HOURS.toMillis(6)) {

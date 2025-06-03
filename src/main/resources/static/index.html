@@ -59,6 +59,7 @@ Password:
     <br/><br/>
     <a href="https://shahart.github.io/ping-me/emojies.html">Emoji Dictionary</a>
 </h6>
+<script src="https://cdn.jsdelivr.net/npm/js-base64@3.7.7/base64.min.js" onerror="alert('Base64 not found for hebrew decrypt!')"></script>
 <script>
 
     var timeout = 90; // max seen time was 55 sec
@@ -117,7 +118,7 @@ Password:
         try {
             var xhr = new XMLHttpRequest();
             var url = "https://" + window.location.hostname;
-            // var url = "http://localhost:8080";
+            // var url = "http://localhost:8080"; // not https
             var recipient = document.getElementById('recipient').value;
             if (recipient == '') {
                 recipient = 'null';
@@ -162,9 +163,14 @@ Password:
     });
 
     document.getElementById("buttonG").addEventListener('click', function(e) {
-        let text = document.getElementById('gim').value;
+        let text = document.getElementById('gim').value.trim();
         if (text.endsWith('==')) {
-            document.getElementById('resultGimEnc').innerHTML = justEncrypt(atob(text.substring(0, text.length-2)));
+            if (typeof Base64 != "undefined") {
+                document.getElementById('resultGimEnc').innerHTML = justEncrypt(Base64.decode((text.substring(0, text.length-2))));
+            }
+            else {
+                document.getElementById('resultGimEnc').innerHTML = justEncrypt(atob(text.substring(0, text.length-2)));
+            }
         }
         else {
             ping(encrypt(text), 'resultGim');
