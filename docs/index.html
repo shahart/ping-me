@@ -44,10 +44,11 @@ Password:
     <br/><br/>
     <button id="locationButton" type="submit">Share Location</button>
     <p id="locationResult"></p>
-    <p id="locationResultUrl">Google-Maps: <a href="https://www.google.com/maps/place/31.78822N+35.2029E">https://www.google.com/maps/place/31.78822N+35.2029E</a><br>
+    <p id="locationResultUrl">
+           Google-Maps: <a href="https://www.google.com/maps/place/31.78822N+35.2029E">https://www.google.com/maps/place/31.78822N+35.2029E</a><br>
            Waze: <a href="https://waze.com/ul?ll=31.78822%2C35.2029">https://waze.com/ul?ll=31.78822%2C35.2029</a><br>
-           Apple-Maps: <a href="https://maps.apple.com/search?center=31.78822%2C35.2029">https://maps.apple.com/search?center=31.78822%2C35.2029</a><br>
-           Here-We-Go: <a href="https://wego.here.com/l/31.78822,35.2029">https://wego.here.com/l/31.78822,35.2029</a>
+           Apple-Maps: <a href="https://maps.apple.com/place?coordinate=31.78822%2C35.2029">https://maps.apple.com/place?coordinate=31.78822%2C35.2029</a><br>
+           Here-We-Go: <a href="https://share.here.com/l/31.78822,35.2029">https://share.here.com/l/31.78822,35.2029</a>
     </p>
     <img src="apple_maps_icon.png" alt="apple-maps-logo" width="72" height="72"/>
     <br/><br/>
@@ -109,7 +110,7 @@ Password:
     function ping(text, field) {
 
         if (field == 'resultGim') {
-            document.getElementById('resultGimEnc').innerHTML = text;
+            document.getElementById('resultGimEnc').innerHTML = text + "==";
         }
 
         timeLeft = timeout;
@@ -164,8 +165,8 @@ Password:
 
     document.getElementById("buttonG").addEventListener('click', function(e) {
         let text = document.getElementById('gim').value;
-        if (text.endsWith('=')) {
-            document.getElementById('resultGimEnc').innerHTML = justEncrypt(atob(text));
+        if (text.endsWith('==')) {
+            document.getElementById('resultGimEnc').innerHTML = justEncrypt(atob(text.substring(0, text.length-2)));
         }
         else {
             ping(encrypt(text), 'resultGim');
