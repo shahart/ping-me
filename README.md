@@ -30,6 +30,7 @@ Now your buddy can text you using WhatsApp - in which answering is possible.
 - Remember the chosen password (application.properties). Defaulted to `1234`
 
 - `mvn spring-boot:run -Dspring-boot.run.arguments=--recipient.target=Elvis`
+- `./gradlew bootRun`
 
 - Browse to http://localhost:8080/index.html just to make sure utility is up and running
 
