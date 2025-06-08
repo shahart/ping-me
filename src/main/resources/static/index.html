@@ -100,8 +100,18 @@ Password:
         return s;
     }
 
+    function getSentTime() {
+        const timestamp = Date.now();
+        const currentDate = new Date(timestamp);
+        const hours   = currentDate.getHours()  .toString().padStart(2, '0');
+        const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+        const seconds = currentDate.getSeconds().toString().padStart(2, '0');
+        const formattedTime = hours + ":" + minutes + ":" + seconds;
+        return " -- " + formattedTime;
+    }
+
     function encrypt(text) {
-        var s = justEncrypt(text);
+        var s = justEncrypt(text + getSentTime());
         return bytesToBase64(new TextEncoder().encode(s));
     }
 
@@ -151,15 +161,15 @@ Password:
     }
 
     document.getElementById("pingMe").addEventListener('click', function(e) {
-        ping('^0$', 'result');
+        ping('^0$' + getSentTime() , 'result');
     });
 
     document.getElementById("msg1").addEventListener('click', function(e) {
-        ping('^1$', 'result1');
+        ping('^1$' + getSentTime() , 'result1');
     });
 
     document.getElementById("msg2").addEventListener('click', function(e) {
-        ping('^2$', 'result2');
+        ping('^2$' + getSentTime() , 'result2');
     });
 
     document.getElementById("buttonG").addEventListener('click', function(e) {
@@ -178,11 +188,11 @@ Password:
     });
 
     document.getElementById("repeatButton").addEventListener('click', function(e) {
-        ping('^4$' /*encrypt('Please repeat, message lost.')*/, 'repeatResult');
+        ping('^4$' + getSentTime() /*encrypt('Please repeat, message lost.')*/, 'repeatResult');
     });
 
     document.getElementById("likeButton").addEventListener('click', function(e) {
-        ping('^3$' /*encrypt('Like')*/, 'likeResult');
+        ping('^3$' + getSentTime()  /*encrypt('Like')*/, 'likeResult');
     });
 
     document.getElementById("sanityButton").addEventListener('click', function(e) {

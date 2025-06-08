@@ -89,22 +89,23 @@ public class Controller {
 
         recipient = (! text.contains("sanityCheck") ? (recipient.isEmpty() ? recipientTarget : recipient) : recipientSource);
 
-        switch (text) {
-            case "^0$" -> text = "Ping Me";
-            case "^1$" -> text = message1;
-            case "^2$" -> text = message2;
-            case "^3$" -> text = "Like";
-            case "^4$" -> text = "Please repeat, message lost.";
-            default -> {
-                if (! text.contains("sanityCheck")) {
-                    log.info("Encrypted text: " + text);
-                    text = new String(Base64.getDecoder().decode(text));
-                    text = Utils.deEnCrypt(text, password);
-                }
-            }
+        if (text.startsWith("^0$ -- ")) {
+            text = text.replace("^0$", "Ping Me");
+        } else if (text.startsWith("^1$ -- ")) {
+            text = text.replace("^1$", message1);
+        } else if (text.startsWith("^2$ -- ")) {
+            text = text.replace("^2$", message2);
+        } else if (text.startsWith("^3$ -- ")) {
+            text = text.replace("^3$", "Like");
+        } else if (text.startsWith("^4$ -- ")) {
+            text = text.replace("^4$", "Please repeat, message lost.");
+        } else if (!text.contains("sanityCheck")) {
+            log.info("Encrypted text: " + text);
+            text = new String(Base64.getDecoder().decode(text));
+            text = Utils.deEnCrypt(text, password);
         }
 
-        String browser = request == null ? "AppSanityCheck" : Utils.getBrowser(request.getHeader("User-Agent"));
+        String browser = request == null ? "Internal app sanity check" : Utils.getBrowser(request.getHeader("User-Agent"));
 
         String postfix = " -- Sent from my " + browser; // can prefix on new browser, but Keep It Simple
         long lastUsageRecipient = lastUsagePerRecipientMap.getOrDefault(recipient, 0L);
@@ -112,13 +113,18 @@ public class Controller {
             postfix = "";
         }
         lastUsagePerRecipientMap.put(recipient, System.currentTimeMillis());
-        lastUsage = System.currentTimeMillis();
-
+        
         log.info("Ping using browser '{}' to '{}' with text '{}' " +
                         "from {}",
                 browser, (recipient.isEmpty() ? recipientTarget : recipient), text,
                 (request == null ? "unknown" : (request.getRemoteHost() + "/ " + request.getHeader("x-forwarded-for"))));
 
+        if (System.currentTimeMillis() - lastUsage < TimeUnit.SECONDS.toMillis(1)) {
+            log.warn("Rate limit exception 429");
+            return new ResponseEntity<>(HttpStatus.TOO_MANY_REQUESTS);
+        }
+        lastUsage = System.currentTimeMillis();
+        
         // if (! sendViaFirefox(recipient, prefix + text); // TODO?
         if (! sendViaSelenium(recipient, text + postfix)) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

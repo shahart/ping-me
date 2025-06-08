@@ -52,4 +52,4 @@ Emoji dictionary, see https://shahart.github.io/ping-me/emojies.html. Thanks to 
 
 ![](docs/ping-me.png)
 
-[![Java CI with Gradle](https://github.com/shahart/ping-me/actions/workflows/maven.yml/badge.svg)](https://github.com/shahart/ping-me/actions/workflows/maven.yml)
+[![Java CI with Maven](https://github.com/shahart/ping-me/actions/workflows/maven.yml/badge.svg)](https://github.com/shahart/ping-me/actions/workflows/maven.yml)
