@@ -70,7 +70,7 @@ public class Controller {
         log.info("Checking for configs... Wait, this might take 2 minutes"); // minimum is 2 seconds
         driver = getChromeInstance(); // timeout is 60 sec // null
         // firefoxDriver = getFirefoxInstance();
-        pingMe("", "sanityCheck", null); //
+        pingMe("", new TextAndTimestamp("00:00:00", "sanityCheck"), null); //
         log.info("Browser is up.");
         log.info("Emojis: " + EmojiManager.getAllEmojis().size());
         log.info("==============================");
@@ -79,8 +79,11 @@ public class Controller {
     @PostMapping("ping/{recipient}")
     public ResponseEntity<Void> pingMe(
             @PathVariable("recipient") String recipient,
-            @RequestBody String text,
+            @RequestBody TextAndTimestamp textAndTs,
             HttpServletRequest request) {
+
+        String text = textAndTs.message();
+        String timestamp = textAndTs.timestamp();
 
         // another quick and dirty - assuming there's no contact name = Null
         if (recipient.equalsIgnoreCase("null")) {
@@ -89,15 +92,15 @@ public class Controller {
 
         recipient = (! text.contains("sanityCheck") ? (recipient.isEmpty() ? recipientTarget : recipient) : recipientSource);
 
-        if (text.startsWith("^0$ -- ")) {
+        if (text.startsWith("^0$")) {
             text = text.replace("^0$", "Ping Me");
-        } else if (text.startsWith("^1$ -- ")) {
+        } else if (text.startsWith("^1$")) {
             text = text.replace("^1$", message1);
-        } else if (text.startsWith("^2$ -- ")) {
+        } else if (text.startsWith("^2$")) {
             text = text.replace("^2$", message2);
-        } else if (text.startsWith("^3$ -- ")) {
+        } else if (text.startsWith("^3$")) {
             text = text.replace("^3$", "Like");
-        } else if (text.startsWith("^4$ -- ")) {
+        } else if (text.startsWith("^4$")) {
             text = text.replace("^4$", "Please repeat, message lost.");
         } else if (!text.contains("sanityCheck")) {
             log.info("Encrypted text: " + text);
@@ -113,11 +116,18 @@ public class Controller {
             postfix = "";
         }
         lastUsagePerRecipientMap.put(recipient, System.currentTimeMillis());
-        
+
+        String newText = text + postfix + " -- at " + timestamp;
+
         log.info("Ping using browser '{}' to '{}' with text '{}' " +
                         "from {}",
-                browser, (recipient.isEmpty() ? recipientTarget : recipient), text,
+                browser, (recipient.isEmpty() ? recipientTarget : recipient), newText,
                 (request == null ? "unknown" : (request.getRemoteHost() + "/ " + request.getHeader("x-forwarded-for"))));
+
+        if (newText.length() > 400) {
+            log.error("Message too long: " + newText);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
         if (System.currentTimeMillis() - lastUsage < TimeUnit.SECONDS.toMillis(1)) {
             log.warn("Rate limit exception 429");
@@ -125,11 +135,11 @@ public class Controller {
         }
         lastUsage = System.currentTimeMillis();
         
-        // if (! sendViaFirefox(recipient, prefix + text); // TODO?
-        if (! sendViaSelenium(recipient, text + postfix)) {
+        // if (! sendViaFirefox(recipient, newText); // TODO?
+        if (! sendViaSelenium(recipient, newText)) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        // if (! sendViaAHK(prefix + text);
+        // if (! sendViaAHK(newText);
 
         log.info("Done sending.");
 

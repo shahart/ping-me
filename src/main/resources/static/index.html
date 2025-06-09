@@ -107,16 +107,21 @@ Password:
         const minutes = currentDate.getMinutes().toString().padStart(2, '0');
         const seconds = currentDate.getSeconds().toString().padStart(2, '0');
         const formattedTime = hours + ":" + minutes + ":" + seconds;
-        return " -- " + formattedTime;
+        return formattedTime;
     }
 
     function encrypt(text) {
-        var s = justEncrypt(text + getSentTime());
+        var s = justEncrypt(text);
         return bytesToBase64(new TextEncoder().encode(s));
     }
 
     <!-- navigator.geolocation is not available on iWatch -->
     function ping(text, field) {
+
+        if (text.length > 400) {
+            document.getElementById(field).innerHTML = "<h1>Message too long</h1>";
+            return;
+        }
 
         if (field == 'resultGim') {
             document.getElementById('resultGimEnc').innerHTML = text + "==";
@@ -128,7 +133,7 @@ Password:
         try {
             var xhr = new XMLHttpRequest();
             var url = "https://" + window.location.hostname;
-            // var url = "http://localhost:8080"; // not https
+            if (url.indexOf('ngrok') == -1) url = "http://localhost:8080";
             var recipient = document.getElementById('recipient').value;
             if (recipient == '') {
                 recipient = 'null';
@@ -136,6 +141,7 @@ Password:
             url += "/ping/" + recipient; // :8080/ping
             xhr.timeout = timeout * 1000;
             xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-type', 'application/json');
             xhr.onload = () => {
                 // console.debug(xhr.status + "-" + xhr.responseText);
                 // alert(xhr.responseText == "0" ? "success" : "failure");
@@ -148,8 +154,12 @@ Password:
                 document.getElementById(field).innerHTML = "<h1>Timeout " + xhr.status + e + "</h1>";
                 timeLeft = 0;
             };
+            var body = {
+                message: text,
+                timestamp: getSentTime()
+            };
             document.getElementById(field).innerHTML = "<h1>before xhr</h1>";
-            xhr.send(text);
+            xhr.send(JSON.stringify(body));
             document.getElementById(field).innerHTML = "<h1>after xhr</h1>";
         }
         catch (err) {
@@ -161,15 +171,15 @@ Password:
     }
 
     document.getElementById("pingMe").addEventListener('click', function(e) {
-        ping('^0$' + getSentTime() , 'result');
+        ping('^0$' , 'result');
     });
 
     document.getElementById("msg1").addEventListener('click', function(e) {
-        ping('^1$' + getSentTime() , 'result1');
+        ping('^1$' , 'result1');
     });
 
     document.getElementById("msg2").addEventListener('click', function(e) {
-        ping('^2$' + getSentTime() , 'result2');
+        ping('^2$' , 'result2');
     });
 
     document.getElementById("buttonG").addEventListener('click', function(e) {
@@ -188,11 +198,11 @@ Password:
     });
 
     document.getElementById("repeatButton").addEventListener('click', function(e) {
-        ping('^4$' + getSentTime() /*encrypt('Please repeat, message lost.')*/, 'repeatResult');
+        ping('^4$' /*encrypt('Please repeat, message lost.')*/, 'repeatResult');
     });
 
     document.getElementById("likeButton").addEventListener('click', function(e) {
-        ping('^3$' + getSentTime()  /*encrypt('Like')*/, 'likeResult');
+        ping('^3$'  /*encrypt('Like')*/, 'likeResult');
     });
 
     document.getElementById("sanityButton").addEventListener('click', function(e) {
