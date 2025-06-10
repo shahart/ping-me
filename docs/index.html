@@ -135,7 +135,7 @@ Password:
         try {
             var xhr = new XMLHttpRequest();
             var url = "https://" + window.location.hostname;
-            if (url.indexOf('ngrok') == -1) url = "http://localhost:8080";
+            if (url == 'https://localhost') url = "http://localhost:8080";
             var recipient = document.getElementById('recipient').value;
             if (recipient == '') {
                 recipient = 'null';
