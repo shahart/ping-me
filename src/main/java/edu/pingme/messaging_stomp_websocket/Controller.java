@@ -77,7 +77,7 @@ public class Controller {
     }
 
     @PostMapping("ping/{recipient}")
-    public ResponseEntity<Void> pingMe(
+    public ResponseEntity<String> pingMe(
             @PathVariable("recipient") String recipient,
             @RequestBody TextAndTimestamp textAndTs,
             HttpServletRequest request) {
@@ -124,7 +124,7 @@ public class Controller {
                 browser, (recipient.isEmpty() ? recipientTarget : recipient), newText,
                 (request == null ? "unknown" : (request.getRemoteHost() + "/ " + request.getHeader("x-forwarded-for"))));
 
-        if (newText.length() > 400) {
+        if (newText.length() > 1000) {
             log.error("Message too long: " + newText);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -134,21 +134,27 @@ public class Controller {
             return new ResponseEntity<>(HttpStatus.TOO_MANY_REQUESTS);
         }
         lastUsage = System.currentTimeMillis();
-        
-        // if (! sendViaFirefox(recipient, newText); // TODO?
-        if (! sendViaSelenium(recipient, newText)) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        try {
+            // if (! sendViaFirefox(recipient, newText); // TODO?
+            if (! sendViaSelenium(recipient, newText)) {
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            // if (! sendViaAHK(newText);
+
+            log.info("Done sending.");
+
+            if (!text.contains("sanityCheck")) {
+                int prev = success.getOrDefault(recipient, 0);
+                success.put(recipient, prev + 1);
+            }
+
+            return new ResponseEntity<>(HttpStatus.OK);
         }
-        // if (! sendViaAHK(newText);
-
-        log.info("Done sending.");
-
-        if (! text.contains("sanityCheck")) {
-            int prev = success.getOrDefault(recipient, 0);
-            success.put(recipient, prev + 1);
+        catch (Exception e) {
+            log.error("Failed sending", e);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private void sendViaAHK(String recipient, String text) throws Exception {

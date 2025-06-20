@@ -5,6 +5,7 @@
     <meta name="description" content="Ping me for iWatch">
     <meta name='viewport' content='width=device-width, height=device-height, initial-scale=1.0'>
     <title>Ping Me</title>
+    <link rel="icon" href="favicon.ico">
 </head>
 <body>
 <noscript>
@@ -48,7 +49,8 @@ Password:
            Google-Maps: <a href="https://www.google.com/maps/place/31.78822N+35.2029E">https://www.google.com/maps/place/31.78822N+35.2029E</a><br>
            Waze: <a href="https://waze.com/ul?ll=31.78822%2C35.2029">https://waze.com/ul?ll=31.78822%2C35.2029</a><br>
            Apple-Maps: <a href="https://maps.apple.com/place?coordinate=31.78822%2C35.2029">https://maps.apple.com/place?coordinate=31.78822%2C35.2029</a><br>
-           Here-We-Go: <a href="https://share.here.com/l/31.78822,35.2029">https://share.here.com/l/31.78822,35.2029</a>
+           Here-We-Go: <a href="https://share.here.com/l/31.78822,35.2029">https://share.here.com/l/31.78822,35.2029</a><br>
+           Address: <a href="https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=31.78822&lon=35.2029">https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=31.78822&lon=35.2029</a>
     </p>
     <img src="apple_maps_icon.png" alt="apple-maps-logo" width="72" height="72"/>
     <br/><br/>
@@ -120,7 +122,7 @@ Password:
     <!-- navigator.geolocation is not available on iWatch -->
     function ping(text, field) {
 
-        if (text.length > 400) {
+        if (text.length > 1000) {
             document.getElementById(field).innerHTML = "<h1>Message too long</h1>";
             return;
         }
@@ -147,7 +149,7 @@ Password:
             xhr.onload = () => {
                 // console.debug(xhr.status + "-" + xhr.responseText);
                 // alert(xhr.responseText == "0" ? "success" : "failure");
-                document.getElementById(field).innerHTML = "<h1>" + xhr.status + "</h1>";
+                document.getElementById(field).innerHTML = "<h1>" + xhr.status + "-" + xhr.responseText + "</h1>";
                 timeLeft = 0;
             };
             xhr.ontimeout = (e) => {
@@ -211,6 +213,30 @@ Password:
         ping(encrypt('sanityCheck'), 'sanityResult');
     });
 
+    /*async*/ function getFetchAddressLinkOnly() {
+        let lat = document.getElementById('lat').value;
+        let lon = document.getElementById('lon').value;
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`;
+        /*try {
+            const response = await fetch(url, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            return data.display_name || "Address not found";
+        } catch (error) {
+            return "Error fetching address";
+        }*/
+        return url;
+    }
+
+    function getFetchAddressLink() {
+        let url = getFetchAddressLinkOnly();
+        return "<a href=\"" + url + "\"> " + url + " </a><br/>";
+    }
+
     function getGoogleMapsLinkOnly() {
         // TODO if lat/lon is negative, put S/W in accordance.
         return 'https://www.google.com/maps/place/' + document.getElementById('lat').value + 'N+' + document.getElementById('lon').value + 'E';
@@ -246,7 +272,7 @@ Password:
 
     function getHereWeGoLink() {
         let hereWeGoLink = getHereWeGoLinkOnly();
-        return "<a href=\"" + hereWeGoLink + "\"> " + hereWeGoLink + " </a>";
+        return "<a href=\"" + hereWeGoLink + "\"> " + hereWeGoLink + " </a><br/>";
     }
 
     document.getElementById("locationButton").addEventListener('click', function(e) {
@@ -254,10 +280,13 @@ Password:
         locUrl += '    Waze: ' + getWazeLink();
         locUrl += '    Apple-Maps: ' + getAppleMapsLink();
         locUrl += '    Here-We-Go: ' + getHereWeGoLink();
+        locUrl += '    Address: ' + getFetchAddressLink();
+
         let locMsg = 'Google-Maps: ' + getGoogleMapsLinkOnly();
         locMsg += '    Waze: ' + getWazeLinkOnly();
         locMsg += '    Apple-Maps: ' + getAppleMapsLinkOnly();
         locMsg += '    Here-We-Go: ' + getHereWeGoLinkOnly();
+        locMsg += '    Address: ' + getFetchAddressLinkOnly();
         ping(encrypt(locMsg), 'locationResult');
         document.getElementById('locationResultUrl').innerHTML = locUrl;
     });
