@@ -47,6 +47,7 @@ Password:
            Waze: <a href="https://waze.com/ul?ll=31.78822%2C35.2029">https://waze.com/ul?ll=31.78822%2C35.2029</a><br>
            Apple-Maps: <a href="https://maps.apple.com/place?coordinate=31.78822%2C35.2029">https://maps.apple.com/place?coordinate=31.78822%2C35.2029</a><br>
            Here-We-Go: <a href="https://share.here.com/l/31.78822,35.2029">https://share.here.com/l/31.78822,35.2029</a><br>
+           Bing-Maps: <a href="https://www.bing.com/maps/directions?rtp=%7Epos.31.78822_35.2029__HERE_">https://www.bing.com/maps/directions?rtp=%7Epos.31.78822_35.2029__HERE_</a><br>
            Address: <a href="https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=31.78822&lon=35.2029">https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=31.78822&lon=35.2029</a>
     </p>
     <img src="apple_maps_icon.png" alt="apple-maps-logo" width="72" height="72"/>
@@ -272,17 +273,28 @@ Password:
         return "<a href=\"" + hereWeGoLink + "\"> " + hereWeGoLink + " </a><br/>";
     }
 
+    function getBingLinkOnly() {
+        return 'https://www.bing.com/maps/directions?rtp=%7Epos.' + document.getElementById('lat').value + '_' + document.getElementById('lon').value + '__HERE_';
+    }
+
+    function getBingLink() {
+        let bingLink = getBingLinkOnly();
+        return "<a href=\"" + bingLink + "\"> " + bingLink + " </a><br/>";
+    }
+
     document.getElementById("locationButton").addEventListener('click', function(e) {
         let locUrl = 'Google-Maps: ' + getGoogleMapsLink();
         locUrl += '    Waze: ' + getWazeLink();
         locUrl += '    Apple-Maps: ' + getAppleMapsLink();
         locUrl += '    Here-We-Go: ' + getHereWeGoLink();
+        locUrl += '    Bing-Maps: ' + getBingLink();
         locUrl += '    Address: ' + getFetchAddressLink();
 
         let locMsg = 'Google-Maps: ' + getGoogleMapsLinkOnly();
         locMsg += '    Waze: ' + getWazeLinkOnly();
         locMsg += '    Apple-Maps: ' + getAppleMapsLinkOnly();
         locMsg += '    Here-We-Go: ' + getHereWeGoLinkOnly();
+        locMsg += '    Bing-Maps: ' + getBingLinkOnly();
         locMsg += '    Address: ' + getFetchAddressLinkOnly();
         ping(encrypt(locMsg), 'locationResult');
         document.getElementById('locationResultUrl').innerHTML = locUrl;
