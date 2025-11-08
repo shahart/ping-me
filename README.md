@@ -46,6 +46,10 @@ Now your buddy can text you using WhatsApp - in which answering is possible.
 - WebSocket
 - Open Chat like https://matrix.org/
 
+## Disclaimer 
+
+Recently WhatsApp released an app for iWatch >> This Ping-me might be  irrelevant soon. 
+
 ## Bonus
 
 Emoji dictionary, see https://shahart.github.io/ping-me/emojies.html. Thanks to Issue #3
