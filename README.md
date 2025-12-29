@@ -48,7 +48,7 @@ Now your buddy can text you using WhatsApp - in which answering is possible.
 
 ## Disclaimer 
 
-Recently WhatsApp released an app for iWatch >> This Ping-me might be  irrelevant soon. 
+Recently WhatsApp released an app for iWatch >> Ping-me looks to be irrelevant. A user can send a message from his watch while his iPhone his far.
 
 ## Bonus
 

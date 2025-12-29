@@ -46,12 +46,12 @@ Password:
     <button id="locationButton" type="submit">Share Location</button>
     <p id="locationResult"></p>
     <p id="locationResultUrl">
-           Google-Maps: <a href="https://www.google.com/maps/place/31.78822N+35.2029E">https://www.google.com/maps/place/31.78822N+35.2029E</a><br>
-           Waze: <a href="https://waze.com/ul?ll=31.78822%2C35.2029">https://waze.com/ul?ll=31.78822%2C35.2029</a><br>
-           Apple-Maps: <a href="https://maps.apple.com/place?coordinate=31.78822%2C35.2029">https://maps.apple.com/place?coordinate=31.78822%2C35.2029</a><br>
-           Here-We-Go: <a href="https://share.here.com/l/31.78822,35.2029">https://share.here.com/l/31.78822,35.2029</a><br>
-           Bing-Maps: <a href="https://www.bing.com/maps/directions?rtp=%7Epos.31.78822_35.2029__HERE_">https://www.bing.com/maps/directions?rtp=%7Epos.31.78822_35.2029__HERE_</a><br>
-           Address: <a href="https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=31.78822&lon=35.2029">https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=31.78822&lon=35.2029</a>
+           Google-Maps: <a target=\"_blank\" href="https://www.google.com/maps/place/31.78822N+35.2029E">https://www.google.com/maps/place/31.78822N+35.2029E</a><br>
+           Waze: <a target=\"_blank\" href="https://waze.com/ul?ll=31.78822%2C35.2029">https://waze.com/ul?ll=31.78822%2C35.2029</a><br>
+           Apple-Maps: <a target=\"_blank\" href="https://maps.apple.com/place?coordinate=31.78822%2C35.2029">https://maps.apple.com/place?coordinate=31.78822%2C35.2029</a><br>
+           Here-We-Go: <a target=\"_blank\" href="https://share.here.com/l/31.78822,35.2029">https://share.here.com/l/31.78822,35.2029</a><br>
+           Bing-Maps: <a target=\"_blank\" href="https://www.bing.com/maps/directions?rtp=%7Epos.31.78822_35.2029__HERE_">https://www.bing.com/maps/directions?rtp=%7Epos.31.78822_35.2029__HERE_</a><br>
+           Address: <a target=\"_blank\" href="https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=31.78822&lon=35.2029">https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=31.78822&lon=35.2029</a>
     </p>
     <img src="apple_maps_icon.png" alt="apple-maps-logo" width="72" height="72"/>
     <br/><br/>
@@ -235,7 +235,7 @@ Password:
 
     function getFetchAddressLink() {
         let url = getFetchAddressLinkOnly();
-        return "<a href=\"" + url + "\"> " + url + " </a><br/>";
+        return "<a target=\"_blank\" href=\"" + url + "\"> " + url + " </a><br/>";
     }
 
     function getGoogleMapsLinkOnly() {
@@ -246,7 +246,7 @@ Password:
     function getGoogleMapsLink() {
         // TODO if lat/lon is negative, put S/W in accordance.
         let googleMapsLink = getGoogleMapsLinkOnly();
-        return "<a href=\"" + googleMapsLink + "\"> " + googleMapsLink + " </a><br/>";
+        return "<a target=\"_blank\" href=\"" + googleMapsLink + "\"> " + googleMapsLink + " </a><br/>";
     }
 
     function getWazeLinkOnly() {
@@ -255,7 +255,7 @@ Password:
 
     function getWazeLink() {
         let wazeLink = getWazeLinkOnly();
-        return "<a href=\"" + wazeLink + "\"> " + wazeLink + " </a><br/>";
+        return "<a target=\"_blank\" href=\"" + wazeLink + "\"> " + wazeLink + " </a><br/>";
     }
 
     function getAppleMapsLinkOnly() {
@@ -264,7 +264,7 @@ Password:
 
     function getAppleMapsLink() {
         let appleMapsLink = getAppleMapsLinkOnly();
-        return "<a href=\"" + appleMapsLink + "\"> " + appleMapsLink + " </a><br/>";
+        return "<a target=\"_blank\" href=\"" + appleMapsLink + "\"> " + appleMapsLink + " </a><br/>";
     }
 
     function getHereWeGoLinkOnly() {
@@ -273,7 +273,7 @@ Password:
 
     function getHereWeGoLink() {
         let hereWeGoLink = getHereWeGoLinkOnly();
-        return "<a href=\"" + hereWeGoLink + "\"> " + hereWeGoLink + " </a><br/>";
+        return "<a target=\"_blank\" href=\"" + hereWeGoLink + "\"> " + hereWeGoLink + " </a><br/>";
     }
 
     function getBingLinkOnly() {
@@ -282,10 +282,18 @@ Password:
 
     function getBingLink() {
         let bingLink = getBingLinkOnly();
-        return "<a href=\"" + bingLink + "\"> " + bingLink + " </a><br/>";
+        return "<a target=\"_blank\" href=\"" + bingLink + "\"> " + bingLink + " </a><br/>";
     }
 
     document.getElementById("locationButton").addEventListener('click', function(e) {
+
+        if (document.getElementById('lat').value == "" && document.getElementById('lon').value == "" && navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                document.getElementById('lat').value = position.coords.latitude;
+                document.getElementById('lon').value = position.coords.longitude;
+            });
+        }
+
         let locUrl = 'Google-Maps: ' + getGoogleMapsLink();
         locUrl += '    Waze: ' + getWazeLink();
         locUrl += '    Apple-Maps: ' + getAppleMapsLink();
