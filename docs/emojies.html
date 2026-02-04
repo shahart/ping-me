@@ -5090,7 +5090,8 @@ Emoji:
     '🏌🏼': 'person golfing: medium-light skin tone :person_golfing_tone2: :person_golfing::skin-tone-2: :golfer::skin-tone-3: :person_golfing_medium_light_skin_tone: :golfer::skin-tone-2: ',
     '🏌🏽': 'person golfing: medium skin tone :person_golfing_tone3: :golfer::skin-tone-3: :person_golfing::skin-tone-3: :golfer::skin-tone-4: :person_golfing_medium_skin_tone: ',
     };
-    document.getElementById("alias").addEventListener('click', function(e) {
+
+    function click() {
         let textValue = document.getElementById('emoji').value;
         if (textValue == 'Speed') {
             // speed feature on puzzles-edu doesn't work from the textArea there, temp code to know the iWatch 9 series speed
@@ -5106,21 +5107,36 @@ Emoji:
             document.getElementById("result").innerHTML = res;
             return;
         }
-        textValue = textValue.trim();
-        let dictValue = dict[textValue.charAt(0) + textValue.charAt(1)];
-        let firstAlias = "person-shrugging";
-        try {
-            let lastIdx = dictValue.lastIndexOf(":", dictValue.length - 3);
-            firstAlias = dictValue.substring(lastIdx+1, dictValue.length - 2).trim().replaceAll("_", "-");
+        textValue = textValue.trim();        
+        let dictValues = "";
+        let links = "";
+        for (var i = 0; i < textValue.length; i++) {
+            try {
+                let emoj = textValue.charAt(i) + textValue.charAt(i+1);
+                let dictValue = dict[emoj];
+                if (dictValue) {
+                    dictValues += emoj + dictValue + "<br>"
+                    let lastIdx = dictValue.lastIndexOf(":", dictValue.length - 3);
+                    firstAlias = dictValue.substring(lastIdx+1, dictValue.length - 2).trim().replaceAll("_", "-");
+                    i++;
+                    links += "<a href=\"https://emojigraph.org/he/" + firstAlias + "/\" target=\"_blank\">I'm Feeling Lucky " + emoj + "</a><br>";
+                }
+            }
+            catch (err) {
+                alert("at index " + i + " --> " + err);
+            }
         }
-        catch (err) {
-            console.error(err);
-        }
-        document.getElementById("result").innerHTML = dictValue + "<br/><br/>" +
+        document.getElementById("result").innerHTML = dictValues + "<br/><br/>" +
             "<a href=\"https://emojigraph.org/he/search/?q=" + textValue + "&searchLang=he\" target=\"_blank\">Another dictionary alternative</a>" +
             "<br/><br/>" +
-            "<a href=\"https://emojigraph.org/he/" + firstAlias + "/\" target=\"_blank\">I'm Feeling Lucky " + textValue + "</a>";
+            links;
+    }
+
+    document.getElementById("alias").addEventListener('click', function(e) {
+        click();
     });
+
+    click();
 </script>
 </body>
 </html>
