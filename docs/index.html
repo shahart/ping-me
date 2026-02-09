@@ -51,6 +51,7 @@ Password:
            Apple-Maps: <a target=\"_blank\" href="https://maps.apple.com/place?coordinate=31.78822%2C35.2029">https://maps.apple.com/place?coordinate=31.78822%2C35.2029</a><br>
            Here-We-Go: <a target=\"_blank\" href="https://share.here.com/l/31.78822,35.2029">https://share.here.com/l/31.78822,35.2029</a><br>
            Bing-Maps: <a target=\"_blank\" href="https://www.bing.com/maps/directions?rtp=%7Epos.31.78822_35.2029__HERE_">https://www.bing.com/maps/directions?rtp=%7Epos.31.78822_35.2029__HERE_</a><br>
+           Open-Street-Maps: <a target=\"_blank\" href="https://www.openstreetmap.org/?mlat=31.78822&mlon=35.2029">https://www.openstreetmap.org/?mlat=31.78822&mlon=35.2029</a><br>
            Address: <a target=\"_blank\" href="https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=31.78822&lon=35.2029">https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=31.78822&lon=35.2029</a>
     </p>
     <img src="apple_maps_icon.png" alt="apple-maps-logo" width="72" height="72"/>
@@ -239,14 +240,34 @@ Password:
     }
 
     function getGoogleMapsLinkOnly() {
-        // TODO if lat/lon is negative, put S/W in accordance.
-        return 'https://www.google.com/maps/place/' + document.getElementById('lat').value + 'N+' + document.getElementById('lon').value + 'E';
+        let result = 'https://www.google.com/maps/place/';
+        if (document.getElementById('lat').value.startsWith('-')) {
+            result += document.getElementById('lat').value.substring(1) + 'S+';
+        }
+        else {
+            result += document.getElementById('lat').value + "N+";
+        }
+        if (document.getElementById('lon').value.startsWith('-')) {
+            result += document.getElementById('lon').value.substring(1) + 'W';
+        }
+        else {
+            result += document.getElementById('lon').value + "E";
+        }
+        return result;
     }
 
     function getGoogleMapsLink() {
-        // TODO if lat/lon is negative, put S/W in accordance.
         let googleMapsLink = getGoogleMapsLinkOnly();
         return "<a target=\"_blank\" href=\"" + googleMapsLink + "\"> " + googleMapsLink + " </a><br/>";
+    }
+
+    function getOSMLinkOnly() {
+        return 'https://www.openstreetmap.org/?mlat=' + document.getElementById('lat').value + '&mlon=' + document.getElementById('lon').value;
+    }
+
+    function getOSMLink() {
+        let openStreetMapLink = getOSMLinkOnly();
+        return "<a target=\"_blank\" href=\"" + openStreetMapLink + "\"> " + openStreetMapLink + " </a><br/>";
     }
 
     function getWazeLinkOnly() {
@@ -299,6 +320,7 @@ Password:
         locUrl += '    Apple-Maps: ' + getAppleMapsLink();
         locUrl += '    Here-We-Go: ' + getHereWeGoLink();
         locUrl += '    Bing-Maps: ' + getBingLink();
+        locUrl += '    Open-Street-Maps: ' + getOSMLink();
         locUrl += '    Address: ' + getFetchAddressLink();
 
         let locMsg = 'Google-Maps: ' + getGoogleMapsLinkOnly();
@@ -306,6 +328,7 @@ Password:
         locMsg += '    Apple-Maps: ' + getAppleMapsLinkOnly();
         locMsg += '    Here-We-Go: ' + getHereWeGoLinkOnly();
         locMsg += '    Bing-Maps: ' + getBingLinkOnly();
+        locMsg += '    Open-Street-Maps: ' + getOSMLinkOnly();
         locMsg += '    Address: ' + getFetchAddressLinkOnly();
         ping(encrypt(locMsg), 'locationResult');
         document.getElementById('locationResultUrl').innerHTML = locUrl;
