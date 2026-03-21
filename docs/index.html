@@ -52,6 +52,7 @@ Password:
            Here-We-Go: <a target=\"_blank\" href="https://share.here.com/l/31.78822,35.2029">https://share.here.com/l/31.78822,35.2029</a><br>
            Bing-Maps: <a target=\"_blank\" href="https://www.bing.com/maps/directions?rtp=%7Epos.31.78822_35.2029__HERE_">https://www.bing.com/maps/directions?rtp=%7Epos.31.78822_35.2029__HERE_</a><br>
            Open-Street-Maps: <a target=\"_blank\" href="https://www.openstreetmap.org/?mlat=31.78822&mlon=35.2029">https://www.openstreetmap.org/?mlat=31.78822&mlon=35.2029</a><br>
+           Uber: <a target=\"_blank\" href='https://m.uber.com/go/home?drop[0]={"latitude":31.78822,"longitude":35.2029}'>https://m.uber.com/go/home?drop[0]={"latitude":31.78822,"longitude":35.2029}</a><br>
            Address: <a target=\"_blank\" href="https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=31.78822&lon=35.2029">https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=31.78822&lon=35.2029</a>
     </p>
     <img src="apple_maps_icon.png" alt="apple-maps-logo" width="72" height="72"/>
@@ -306,6 +307,15 @@ Password:
         return "<a target=\"_blank\" href=\"" + bingLink + "\"> " + bingLink + " </a><br/>";
     }
 
+    function getUberLinkOnly() {
+        return 'https://m.uber.com/go/home?drop[0]={%22latitude%22:' + document.getElementById('lat').value + ',%22longitude%22:' + document.getElementById('lon').value + '}';
+    }
+
+    function getUberLink() {
+        let uberLink = getUberLinkOnly();
+        return "<a target=\"_blank\" href=\"" + uberLink + "\"> " + uberLink + " </a><br/>";
+    }
+
     document.getElementById("locationButton").addEventListener('click', function(e) {
 
         if (document.getElementById('lat').value == "" && document.getElementById('lon').value == "" && navigator.geolocation) {
@@ -321,6 +331,7 @@ Password:
         locUrl += '    Here-We-Go: ' + getHereWeGoLink();
         locUrl += '    Bing-Maps: ' + getBingLink();
         locUrl += '    Open-Street-Maps: ' + getOSMLink();
+        locUrl += '    Uber: ' + getUberLink();
         locUrl += '    Address: ' + getFetchAddressLink();
 
         let locMsg = 'Google-Maps: ' + getGoogleMapsLinkOnly();
@@ -329,6 +340,7 @@ Password:
         locMsg += '    Here-We-Go: ' + getHereWeGoLinkOnly();
         locMsg += '    Bing-Maps: ' + getBingLinkOnly();
         locMsg += '    Open-Street-Maps: ' + getOSMLinkOnly();
+        locMsg += '    Uber: ' + getUberLinkOnly();
         locMsg += '    Address: ' + getFetchAddressLinkOnly();
         ping(encrypt(locMsg), 'locationResult');
         document.getElementById('locationResultUrl').innerHTML = locUrl;
